@@ -1,21 +1,8 @@
-/*
-Copyright 2016 The Kubernetes Authors.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-// Note: the example only works with the code within the same release/branch.
 package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -23,23 +10,30 @@ import (
 	"path/filepath"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-	//
-	// Uncomment to load all auth plugins
-	// _ "k8s.io/client-go/plugin/pkg/client/auth"
-	//
-	// Or uncomment to load specific auth plugins
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/azure"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/openstack"
 )
 
 func main() {
+	// Initialize SQLite
+	log.Print("Initializing database...")
+	const file = "obituary.db"
+	db, err := sql.Open("sqlite3", file)
+	if err != nil {
+		panic(err.Error())
+	}
+	log.Print("Success!")
+
+	log.Print("Initializing tables...")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS 'terminated'(name TEXT, manifest TEXT)")
+	if err != nil {
+		panic(err.Error())
+	}
+
 	var kubeconfig *string
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -47,18 +41,23 @@ func main() {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
 	flag.Parse()
+	log.Print("Success!")
 
-	// use the current context in kubeconfig
+	log.Print("Initializing Client...")
+	// use the current context in kubeconfg
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	// create the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err.Error())
 	}
+	log.Print("Success!")
+
+	log.Print("Watching...")
+	// Insert manifest into database for all terminating pods.
 	watch, err := clientset.CoreV1().Pods("").Watch(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
@@ -69,9 +68,18 @@ func main() {
 	go func() {
 		for event := range watch.ResultChan() {
 			pod := event.Object.(*v1.Pod)
-			marshalledPod, _ := json.Marshal(pod)
-			fmt.Println(string(marshalledPod))
+			if pod.ObjectMeta.DeletionTimestamp != nil {
+				marshalledPod, err := json.Marshal(pod)
+				if err != nil {
+					log.Print("Cannot convert pod object to JSON, pod name: ", pod.Name, ", error: ", err.Error())
+				}
+				results, err := db.Exec("INSERT INTO terminated(name, manifest) VALUES(?, ?)", pod.Name, string(marshalledPod))
+				if err != nil {
+					log.Print("Cannot insert pod manifest into database, pod name: ", pod.Name, ", error: ", err.Error())
+				}
+				fmt.Println(results)
+			}
 		}
 	}()
-	time.Sleep(30 * time.Second)
+	time.Sleep(600 * time.Second)
 }
