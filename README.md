@@ -1,2 +1,2 @@
-# kubernetes-obituary
+# kube-obituaries
 Archives pod manifests at termination.
