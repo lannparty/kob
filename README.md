@@ -1,6 +1,8 @@
 # kube-obituaries
 Archives pod manifests at termination.
 
+![alt text](https://github.com/lannparty/kube-obituaries/blob/main/kube-obituaries.png?raw=true)
+
 Cluster Installation
 ```
 kubectl apply -f manifests/kube-obituaries.yaml
