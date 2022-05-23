@@ -16,3 +16,7 @@ Usage:
 ```
 kubectl ob <DELETED_POD_NAME>
 ```
+Feed into jq for pretty print.
+```
+kubectl ob <DELETED_POD_NAME> |jq -r
+```
