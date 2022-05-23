@@ -24,5 +24,5 @@ kubectl ob <DELETED_POD_NAME> |jq -r
 ```
 Supports wildcard
 ```
-kubectl ob calico* |jq -r
+kubectl ob calico% |jq -r
 ```
