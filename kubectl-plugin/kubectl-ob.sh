@@ -16,6 +16,6 @@ fi
 
 if [[ "$1" == "get"  ]] && [[ "$2" == "ob" ]]
 then
-	kubectl exec -it -n kube-system kube-obituary -- sqlite3 /opt/kube-obituaries/obituary.db '.databases'
+    kubectl exec -it -n kube-system kube-obituary -- sqlite3 /opt/kube-obituaries/obituaries.db 'select * from pods where name = $3'
     exit 0
 fi

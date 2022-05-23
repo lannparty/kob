@@ -73,7 +73,7 @@ func main() {
 			if err != nil {
 				log.Print("Cannot convert pod object to JSON, pod name: ", pod.Name, ", error: ", err.Error())
 			}
-			_, err = db.Exec("INSERT INTO pods(name, manifest) VALUES(?, ?)", string(marshalledPod))
+			_, err = db.Exec("INSERT INTO pods(name, manifest) VALUES(?, ?)", pod.Name, string(marshalledPod))
 			if err != nil {
 				log.Print("Cannot insert pod manifest into database, pod name: ", pod.Name, ", error: ", err.Error())
 			}

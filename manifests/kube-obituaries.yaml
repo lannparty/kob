@@ -15,9 +15,17 @@ spec:
       labels:
         app: kube-obituaries
     spec:
+      serviceAccountName: kube-obituaries
       containers:
       - name: kube-obituaries
-        image: lannparty/kube-obituaries:1.0.0
+        image: lannparty/kube-obituaries:1.0.2
+        volumeMounts:
+        - mountPath: "/opt/kube-obituaries"
+          name: kube-obituaries
+      volumes:
+      - name: kube-obituaries
+        persistentVolumeClaim:
+          claimName: kube-obituaries
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -25,26 +33,36 @@ metadata:
   name: kube-obituaries
   namespace: kube-system
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
+  name: kube-obituaries
   namespace: kube-system
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
   name: kube-obituaries
 rules:
 - apiGroups: [""]
   resources: ["pods"]
   verbs: ["get", "watch", "list"]
 ---
-kind: RoleBinding
+kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: kube-obituaries
-  namespace: kube-system
 subjects:
 - kind: ServiceAccount
   name: kube-obituaries
   namespace: kube-system
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: kube-obituaries
   apiGroup: ""
