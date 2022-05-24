@@ -3,18 +3,18 @@ Archives pod manifests at termination.
 
 ![alt text](https://github.com/lannparty/kube-obituaries/blob/main/kube-obituaries.png?raw=true)
 
-Controller installation
+# Controller installation
 ```
 kubectl apply -f manifests/kube-obituaries.yaml
 ```
 
-Kubectl plugin installation
+# Kubectl plugin installation
 ```
 chmod +x kubectl-plugin/kubectl-ob
 cp kubectl-plugin/kubectl-ob /usr/local/bin
 ```
 
-CLI Usage:
+# CLI Usage:
 ```
 kubectl ob <DELETED_POD_NAME>
 ```
