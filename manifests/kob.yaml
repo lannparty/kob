@@ -18,7 +18,7 @@ spec:
       serviceAccountName: kob
       containers:
       - name: kob
-        image: lannparty/kob:1.0.5
+        image: lannparty/kob:1.0.1
         volumeMounts:
         - mountPath: "/opt/kob"
           name: kob

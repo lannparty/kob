@@ -63,7 +63,7 @@ func main() {
 					log.Print("Cannot insert pod manifest into database, pod name: ", pod.Name, ", error: ", err.Error())
 				}
 			} else {
-				log.Print("Created entry for ", pod.Name)
+				log.Print("Created entry for ", pod.Name, " ", pod.UID)
 			}
 		}
 	}
