@@ -18,7 +18,7 @@ spec:
       serviceAccountName: kube-obituaries
       containers:
       - name: kube-obituaries
-        image: lannparty/kube-obituaries:1.0.2
+        image: lannparty/kube-obituaries:1.0.5
         volumeMounts:
         - mountPath: "/opt/kube-obituaries"
           name: kube-obituaries

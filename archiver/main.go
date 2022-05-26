@@ -24,26 +24,10 @@ func main() {
 	log.Print("Success!")
 
 	log.Print("Initializing tables...")
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS pods(name TEXT, manifest TEXT)")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS pods(name TEXT, uid TEXT UNIQUE, manifest TEXT)")
 	if err != nil {
 		panic(err.Error())
 	}
-
-	//var kubeconfig *string
-	//if home := homedir.HomeDir(); home != "" {
-	//kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	//} else {
-	//kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	//}
-	//flag.Parse()
-	//log.Print("Success!")
-
-	//log.Print("Initializing Client...")
-	//// use the current context in kubeconfg
-	//config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	//if err != nil {
-	//panic(err.Error())
-	//}
 
 	// creates the in-cluster config
 	config, err := rest.InClusterConfig()
@@ -73,11 +57,14 @@ func main() {
 			if err != nil {
 				log.Print("Cannot convert pod object to JSON, pod name: ", pod.Name, ", error: ", err.Error())
 			}
-			_, err = db.Exec("INSERT INTO pods(name, manifest) VALUES(?, ?)", pod.Name, string(marshalledPod))
+			_, err = db.Exec("INSERT INTO pods(name, uid, manifest) VALUES(?, ?, ?)", pod.Name, pod.UID, string(marshalledPod))
 			if err != nil {
-				log.Print("Cannot insert pod manifest into database, pod name: ", pod.Name, ", error: ", err.Error())
+				if err.Error() != "UNIQUE constraint failed: pods.uid" {
+					log.Print("Cannot insert pod manifest into database, pod name: ", pod.Name, ", error: ", err.Error())
+				}
+			} else {
+				log.Print("Created entry for ", pod.Name)
 			}
-			log.Print("Created entry for ", pod.Name)
 		}
 	}
 }
