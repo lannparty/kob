@@ -1,4 +1,4 @@
 #!/bin/bash
 
 POD=\'$1\'
-kubectl exec -it -n kube-system deploy/kube-obituaries -- sqlite3 /opt/kube-obituaries/obituaries.db "select manifest from pods where name like $POD"
+kubectl exec -it -n kube-system deploy/kob -- sqlite3 /opt/kob/obituaries.db "select manifest from pods where name like $POD"

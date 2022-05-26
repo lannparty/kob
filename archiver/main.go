@@ -16,7 +16,7 @@ import (
 func main() {
 	// Initialize SQLite
 	log.Print("Initializing database...")
-	const file = "/opt/kube-obituaries/obituaries.db"
+	const file = "/opt/kob/obituaries.db"
 	db, err := sql.Open("sqlite3", file)
 	if err != nil {
 		panic(err.Error())

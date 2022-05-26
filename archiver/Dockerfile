@@ -5,6 +5,6 @@ RUN go get ./...
 RUN go build
 
 FROM ubuntu:22.10
-COPY --from=builder /app/kube-obituaries /
+COPY --from=builder /app/kob /
 RUN apt update && apt -y install sqlite3
-ENTRYPOINT ["/kube-obituaries"]
+ENTRYPOINT ["/kob"]

@@ -1,4 +1,4 @@
-module lannparty/kube-obituaries
+module lannparty/kob
 
 go 1.18
 

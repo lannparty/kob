@@ -1,11 +1,11 @@
-# kube-obituaries
+# Kubernetes Obituaries
 Archives pod manifests at termination.
 
-![alt text](https://github.com/lannparty/kube-obituaries/blob/main/kube-obituaries.png?raw=true)
+![alt text](https://github.com/lannparty/kob/blob/main/kob-arch.png?raw=true)
 
 ## Controller installation
 ```
-kubectl apply -f manifests/kube-obituaries.yaml
+kubectl apply -f manifests/kob.yaml
 ```
 
 ## Kubectl plugin installation

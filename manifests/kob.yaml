@@ -1,42 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kube-obituaries
+  name: kob
   namespace: kube-system
   labels:
-    app: kube-obituaries
+    app: kob
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kube-obituaries
+      app: kob
   template:
     metadata:
       labels:
-        app: kube-obituaries
+        app: kob
     spec:
-      serviceAccountName: kube-obituaries
+      serviceAccountName: kob
       containers:
-      - name: kube-obituaries
-        image: lannparty/kube-obituaries:1.0.5
+      - name: kob
+        image: lannparty/kob:1.0.5
         volumeMounts:
-        - mountPath: "/opt/kube-obituaries"
-          name: kube-obituaries
+        - mountPath: "/opt/kob"
+          name: kob
       volumes:
-      - name: kube-obituaries
+      - name: kob
         persistentVolumeClaim:
-          claimName: kube-obituaries
+          claimName: kob
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: kube-obituaries
+  name: kob
   namespace: kube-system
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: kube-obituaries
+  name: kob
   namespace: kube-system
 spec:
   accessModes:
@@ -48,7 +48,7 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: kube-obituaries
+  name: kob
 rules:
 - apiGroups: [""]
   resources: ["pods"]
@@ -57,12 +57,12 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: kube-obituaries
+  name: kob
 subjects:
 - kind: ServiceAccount
-  name: kube-obituaries
+  name: kob
   namespace: kube-system
 roleRef:
   kind: ClusterRole
-  name: kube-obituaries
+  name: kob
   apiGroup: ""
