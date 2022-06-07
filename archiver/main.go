@@ -23,12 +23,7 @@ func main() {
 	}
 	log.Print("Success!")
 
-	log.Print("Initializing tables...")
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS pods(name TEXT, uid TEXT UNIQUE, manifest TEXT)")
-	if err != nil {
-		panic(err.Error())
-	}
-
+	log.Print("Initializing k8s client...")
 	// creates the in-cluster config
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -50,6 +45,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
 	for event := range watch.ResultChan() {
 		pod := event.Object.(*v1.Pod)
 		if pod.ObjectMeta.DeletionTimestamp != nil {

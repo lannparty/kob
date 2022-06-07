@@ -1,0 +1,17 @@
+databaseChangeLog:  
+  - changeSet:
+      id: 1
+      author: lann
+      changes:
+      - createTable:
+          tableName: pods
+          columns:
+          - column:
+              name: name
+              type: TEXT
+          - column:
+              name: uid
+              type: TEXT
+          - column:
+              name: manifest
+              type: TEXT
