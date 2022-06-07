@@ -12,6 +12,9 @@ databaseChangeLog:
           - column:
               name: uid
               type: TEXT
+              constraints:
+                unique: true
           - column:
               name: manifest
               type: TEXT
+
