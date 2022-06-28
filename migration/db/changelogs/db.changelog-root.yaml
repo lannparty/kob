@@ -17,4 +17,46 @@ databaseChangeLog:
           - column:
               name: manifest
               type: TEXT
-
+  - changeSet:
+      id: 2
+      author: lann
+      changes:
+      - createTable:
+          tableName: pod_events
+          columns:
+          - column:
+              name: uid
+              type: text
+              constraints:
+                nullable: false
+                foreignKeyName: uid
+                references: pods(uid)
+          - column:
+              name: events
+              type: text
+      - createTable:
+          tableName: nodes
+          columns:
+          - column:
+              name: uid
+              type: text
+              constraints:
+                nullable: false
+                foreignKeyName: uid
+                references: pods(uid)
+          - column:
+              name: manifest
+              type: TEXT
+      - createTable:
+          tableName: node_events
+          columns:
+          - column:
+              name: uid
+              type: text
+              constraints:
+                nullable: false
+                foreignKeyName: uid
+                references: pods(uid)
+          - column:
+              name: events
+              type: text
