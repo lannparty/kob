@@ -5,6 +5,6 @@ RUN go get ./...
 RUN go build
 
 FROM ubuntu:22.10
-COPY --from=builder /app/archiver /
+COPY --from=builder /app/reclaimer /
 RUN apt update && apt -y install sqlite3
-ENTRYPOINT ["/archiver"]
+ENTRYPOINT ["/reclaimer"]

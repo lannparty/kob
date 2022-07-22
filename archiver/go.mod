@@ -1,4 +1,4 @@
-module lannparty/kob
+module lannparty/archiver
 
 go 1.18
 

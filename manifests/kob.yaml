@@ -20,14 +20,19 @@ spec:
       serviceAccountName: kob
       initContainers:
       - name: migration
-        image: lannparty/kob-migration:1.0.4
+        image: lannparty/kob-migration:1.0.5
         command: ['/bin/bash', '-c', 'liquibase --changelog-file=db/changelogs/db.changelog-root.yaml --url=jdbc:sqlite:/opt/kob/obituaries.db update']
         volumeMounts:
         - mountPath: "/opt/kob"
           name: kob
       containers:
-      - name: kob
-        image: lannparty/kob:1.0.4
+      - name: archiver
+        image: lannparty/kob-archiver:1.0.5
+        volumeMounts:
+        - mountPath: "/opt/kob"
+          name: kob
+      - name: reclaimer
+        image: lannparty/kob-reclaimer:1.0.5
         volumeMounts:
         - mountPath: "/opt/kob"
           name: kob
