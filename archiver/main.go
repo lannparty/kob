@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"log"
+
+	"github.com/lannparty/kob/internal/archivers"
 
 	_ "github.com/mattn/go-sqlite3"
 	v1 "k8s.io/api/core/v1"
@@ -36,7 +37,7 @@ func main() {
 	}
 	log.Print("Success!")
 
-	// Insert manifest into database for all terminating pods.
+	// Watch all pods.
 	log.Print("Watching...")
 	watch, err := clientset.CoreV1().Pods("").Watch(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -46,21 +47,9 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	// Process pods.
 	for event := range watch.ResultChan() {
 		pod := event.Object.(*v1.Pod)
-		if pod.ObjectMeta.DeletionTimestamp != nil {
-			marshalledPod, err := json.Marshal(pod)
-			if err != nil {
-				log.Print("Cannot convert pod object to JSON, pod name: ", pod.Name, ", error: ", err.Error())
-			}
-			_, err = db.Exec("INSERT INTO pods(name, uid, manifest) VALUES(?, ?, ?)", pod.Name, pod.UID, string(marshalledPod))
-			if err != nil {
-				if err.Error() != "UNIQUE constraint failed: pods.uid" {
-					log.Print("Cannot insert pod manifest into database, pod name: ", pod.Name, ", error: ", err.Error())
-				}
-			} else {
-				log.Print("Created entry for ", pod.Name, " ", pod.UID)
-			}
-		}
+		archivers.ArchivePodManifest(pod, db)
 	}
 }

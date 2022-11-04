@@ -1,4 +1,4 @@
-module lannparty/archiver
+module github.com/lannparty/archiver
 
 go 1.18
 
