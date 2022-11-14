@@ -9,8 +9,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apiWatch "k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
+	w "k8s.io/client-go/tools/watch"
 )
 
 func main() {
@@ -36,17 +39,18 @@ func main() {
 	}
 	log.Print("Success!")
 
-	// Insert manifest into database for all terminating pods.
-	log.Print("Watching...")
-	watch, err := clientset.CoreV1().Pods("").Watch(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		panic(err.Error())
-	}
-	if err != nil {
-		log.Fatal(err.Error())
+	timeOut := int64(120)
+	watchFunc := func(options metav1.ListOptions) (apiWatch.Interface, error) {
+		return clientset.CoreV1().Pods("").Watch(context.Background(), metav1.ListOptions{TimeoutSeconds: &timeOut})
 	}
 
-	for event := range watch.ResultChan() {
+	w, err := w.NewRetryWatcher("1", &cache.ListWatch{WatchFunc: watchFunc})
+	if err != nil {
+		panic(err)
+	}
+
+	// Insert manifest into database for all terminating pods
+	for event := range w.ResultChan() {
 		pod := event.Object.(*v1.Pod)
 		if pod.ObjectMeta.DeletionTimestamp != nil {
 			marshalledPod, err := json.Marshal(pod)
